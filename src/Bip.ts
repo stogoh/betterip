@@ -1,40 +1,49 @@
 interface BipFunctions {
-
     isIPv4(address: string): boolean
-
-    isIPv6(address: string): boolean
 
     isNetmask(netmask: string): boolean
 
-    networkId(address: string): boolean
+    netmasks(): string[]
 
-    sameSubnet(addresses: string[]): boolean
+    toBytes(value: number): number[]
 
+    toString(octets: number[]): string
 }
 
-class BipRoot implements BipFunctions {
+class BipImpl implements BipFunctions {
     isIPv4(address: string): boolean {
-        throw new Error('Method not implemented.')
+        return IPV4.test(address)
     }
-    isIPv6(address: string): boolean {
-        throw new Error('Method not implemented.')
-    }
+
     isNetmask(netmask: string): boolean {
-        throw new Error('Method not implemented.')
+        return NETMASK.test(netmask)
     }
-    networkId(address: string): boolean {
-        throw new Error('Method not implemented.')
+
+    netmasks(): string[] {
+        const netmasks: string[] = []
+
+        for (let b = 31; b >= 0; b--) {
+            netmasks.push(this.toBytes(2 ** 32 - (2 ** b)).join('.'))
+        }
+
+        return netmasks
     }
-    sameSubnet(addresses: string[]): boolean {
-        throw new Error('Method not implemented.')
+
+    toBytes(value: number): number[] {
+        if (value < 0) return null
+        if (value > 2 ** 32 - 1) return null
+
+        return [
+            value >> 24 & 0xFF,
+            value >> 16 & 0xFF,
+            value >> 8 & 0xFF,
+            value & 0xFF
+        ]
+    }
+
+    toString(octets: number[]): string {
+        return octets.join('.')
     }
 }
 
-declare const Bip: BipRoot
-
-//////////////////////////////////////////////////
-//              Implementation          //////////
-//////////////////////////////////////////////////
-
-
-Bip.sameSubnet(['asdasd', 'assdf'])
+export const Bip: BipImpl = new BipImpl()

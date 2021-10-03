@@ -111,6 +111,5 @@ dist
 # VSCode workspace settings
 .vscode
 
-# Compiles JS code
+# Compiled javascript code
 lib/
-build/

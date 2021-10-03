@@ -1,6 +1,3 @@
 .git/
 src/
 test/
-/lib/app.d.ts
-/lib/app.js
-/lib/app.js.map

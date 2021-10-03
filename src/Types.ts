@@ -1,4 +1,5 @@
-export type NetmaskDotDecimalFormat = '0.0.0.0'
+export type NetmaskDotDecimalFormat =
+    '0.0.0.0'
     | '128.0.0.0'
     | '192.0.0.0'
     | '224.0.0.0'
@@ -32,7 +33,8 @@ export type NetmaskDotDecimalFormat = '0.0.0.0'
     | '255.255.255.254'
     | '255.255.255.255'
 
-export type NetmaskCidrFormat = '/0'
+export type NetmaskCidrFormat =
+    '/0'
     | '/1'
     | '/2'
     | '/3'
@@ -65,3 +67,8 @@ export type NetmaskCidrFormat = '/0'
     | '/30'
     | '/31'
     | '/32'
+
+export type AddressSpace =
+    'public'
+    | 'private'
+    | 'link-local'
