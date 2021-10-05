@@ -72,3 +72,5 @@ export type AddressSpace =
     'public'
     | 'private'
     | 'link-local'
+
+export type AddressRepresentation = string | number | number[]
