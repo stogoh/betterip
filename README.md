@@ -6,8 +6,6 @@ IP address utilities for NodeJS.
 
 ## Installation
 
-npm
-
 ```shell
 npm install betterip
 ```
@@ -22,6 +20,11 @@ console.log(Bip.isIPv4('192.168.1.1')) // true
 console.log(Bip.isIPv4('some.invalid.ip.address')) // false
 console.log(Bip.isNetmask('255.255.255.0')) // true
 console.log(Bip.isNetmask('some.invalid.net.mask')) // false
+
+// Conversion
+console.log(Bip.networkId('192.168.1.123')) // '192.168.1.0'
+console.log(Bip.broadcast('192.168.1.123', '255.255.255.0')) // '192.168.1.255'
+console.log(Bip.hostId('192.168.1.123', '255.255.255.0')) // '0.0.0.123'
 
 // Tools
 console.log(Bip.netmasks()) // ['128.0.0.0', '192.0.0.0', '224.0.0.0', ...]
