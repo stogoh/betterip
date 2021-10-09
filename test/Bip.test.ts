@@ -37,6 +37,177 @@ const NETMASKS = [
     '255.255.255.255'
 ]
 
+describe('Bip.toDecimal()', () => {
+    it('Should return a number', () => {
+        expect(Bip.toDecimal(0)).to.be.a('number')
+        expect(Bip.toDecimal(65535)).to.be.a('number')
+        expect(Bip.toDecimal([0, 0, 0, 0])).to.be.a('number')
+        expect(Bip.toDecimal([0, 0, 255, 255])).to.be.a('number')
+        expect(Bip.toDecimal('0.0.0.0')).to.be.a('number')
+        expect(Bip.toDecimal('0.0.255.255')).to.be.a('number')
+    })
+
+    it('Should accept decimal', () => {
+        expect(Bip.toDecimal(0)).to.equal(0)
+        expect(Bip.toDecimal(65535)).to.equal(65535)
+        expect(Bip.toDecimal(2 ** 32 - 1)).to.equal(2 ** 32 - 1)
+    })
+
+    it('Should accept octet array', () => {
+        expect(Bip.toDecimal([0, 0, 0, 0])).to.equal(0)
+        expect(Bip.toDecimal([0, 0, 255, 255])).to.equal(65535)
+        expect(Bip.toDecimal([255, 255, 255, 255])).to.equal(2 ** 32 - 1)
+    })
+
+    it('Should accept dot-decimal notation', () => {
+        expect(Bip.toDecimal('0.0.0.0')).to.equal(0)
+        expect(Bip.toDecimal('0.0.255.255')).to.equal(65535)
+        expect(Bip.toDecimal('255.255.255.255')).to.equal(2 ** 32 - 1)
+    })
+
+    it('Should return null for invalid input', () => {
+        expect(Bip.toDecimal(-(2 ** 32))).to.be.null
+        expect(Bip.toDecimal(2 ** 33)).to.be.null
+        expect(Bip.toDecimal([255, 255, 511, 0])).to.be.null
+        expect(Bip.toDecimal([255, 255, 0])).to.be.null
+        expect(Bip.toDecimal([255, 255, 0, 0, 0])).to.be.null
+        expect(Bip.toDecimal(-(2 ** 32))).to.be.null
+        expect(Bip.toDecimal(2 ** 33)).to.be.null
+        expect(Bip.toDecimal('an.invalid.ipv4.address')).to.be.null
+    })
+
+    it('Should throw for invalid input with { throw: true } option', () => {
+        expect(() => Bip.toDecimal(-(2 ** 32), { throw: true })).to.throw()
+        expect(() => Bip.toDecimal(2 ** 33, { throw: true })).to.throw()
+        expect(() => Bip.toDecimal([255, 255, 511, 0], { throw: true })).to.throw()
+        expect(() => Bip.toDecimal([255, 255, 0], { throw: true })).to.throw()
+        expect(() => Bip.toDecimal([255, 255, 0, 0, 0], { throw: true })).to.throw()
+        expect(() => Bip.toDecimal(-(2 ** 32), { throw: true })).to.throw()
+        expect(() => Bip.toDecimal(2 ** 33, { throw: true })).to.throw()
+        expect(() => Bip.toDecimal('an.invalid.ipv4.address', { throw: true })).to.throw()
+    })
+})
+
+describe('Bip.toString()', () => {
+    it('Should return a string', () => {
+        expect(Bip.toString(0)).to.be.a('string')
+        expect(Bip.toString(65535)).to.be.a('string')
+        expect(Bip.toString([0, 0, 0, 0])).to.be.a('string')
+        expect(Bip.toString([0, 0, 255, 255])).to.be.a('string')
+        expect(Bip.toString('0.0.0.0')).to.be.a('string')
+        expect(Bip.toString('0.0.255.255')).to.be.a('string')
+    })
+
+    it('Should accept string', () => {
+        expect(Bip.toString('0.0.0.0')).to.equal('0.0.0.0')
+        expect(Bip.toString('0.0.255.255')).to.equal('0.0.255.255')
+        expect(Bip.toString('255.255.255.255')).to.equal('255.255.255.255')
+        expect(Bip.toString('192.168.0.1')).to.equal('192.168.0.1')
+        expect(Bip.toString('192.168.000.001')).to.equal('192.168.0.1')
+        expect(Bip.toString('192.168.0000.01')).to.equal('192.168.0.1')
+    })
+
+    it('Should accept decimal', () => {
+        expect(Bip.toString(0)).to.equal('0.0.0.0')
+        expect(Bip.toString(65535)).to.equal('0.0.255.255')
+        expect(Bip.toString(2 ** 32 - 1)).to.equal('255.255.255.255')
+    })
+
+    it('Should accept octet array', () => {
+        expect(Bip.toString([0, 0, 0, 0])).to.equal('0.0.0.0')
+        expect(Bip.toString([0, 0, 255, 255])).to.equal('0.0.255.255')
+        expect(Bip.toString([255, 255, 255, 255])).to.equal('255.255.255.255')
+    })
+
+    it('Should return null for invalid input', () => {
+        expect(Bip.toString(-(2 ** 32))).to.be.null
+        expect(Bip.toString(2 ** 32)).to.be.null
+        expect(Bip.toString([10, 20, 30, 400])).to.be.null
+        expect(Bip.toString([10, 20, 30])).to.be.null
+        expect(Bip.toString([10, 20, 30, 40, 50])).to.be.null
+        expect(Bip.toString([10, 20, 30, null])).to.be.null
+        expect(Bip.toString([10, 20, 30, undefined])).to.be.null
+        expect(Bip.toString('10.20.30.400')).to.be.null
+        expect(Bip.toString('10.20.30.')).to.be.null
+        expect(Bip.toString('10.20.30.40.50')).to.be.null
+        expect(Bip.toString('10-20-30-40-50')).to.be.null
+    })
+
+    it('Should throw for invalid input with { throw: true } option', () => {
+        expect(() => Bip.toString(-(2 ** 32), { throw: true })).to.throw()
+        expect(() => Bip.toString(2 ** 32, { throw: true })).to.throw()
+        expect(() => Bip.toString([10, 20, 30, 500], { throw: true })).to.throw()
+        expect(() => Bip.toString([10, 20, 30], { throw: true })).to.throw()
+        expect(() => Bip.toString([10, 20, 30, 40, 50], { throw: true })).to.throw()
+        expect(() => Bip.toString([10, 20, 30, null], { throw: true })).to.throw()
+        expect(() => Bip.toString([10, 20, 30, undefined], { throw: true })).to.throw()
+        expect(() => Bip.toString('10.20.30.400', { throw: true })).to.throw()
+        expect(() => Bip.toString('10.20.30.', { throw: true })).to.throw()
+        expect(() => Bip.toString('10.20.30.40.50', { throw: true })).to.throw()
+        expect(() => Bip.toString('10-20-30-40-50', { throw: true })).to.throw()
+    })
+})
+
+describe('Bip.toOctets()', () => {
+    it('Should return an octet array with length of 4', () => {
+        expect(Bip.toOctets(0)).to.have.lengthOf(4)
+        expect(Bip.toOctets(65535)).to.have.lengthOf(4)
+        expect(Bip.toOctets([0, 0, 0, 0])).to.have.lengthOf(4)
+        expect(Bip.toOctets([0, 0, 255, 255])).to.have.lengthOf(4)
+        expect(Bip.toOctets('0.0.0.0')).to.have.lengthOf(4)
+        expect(Bip.toOctets('0.0.255.255')).to.have.lengthOf(4)
+    })
+
+    it('Should accept string', () => {
+        expect(Bip.toOctets('0.0.0.0')).to.deep.equal([0, 0, 0, 0])
+        expect(Bip.toOctets('0.0.255.255')).to.deep.equal([0, 0, 255, 255])
+        expect(Bip.toOctets('255.255.255.255')).to.deep.equal([255, 255, 255, 255])
+        expect(Bip.toOctets('192.168.0.1')).to.deep.equal([192, 168, 0, 1])
+        expect(Bip.toOctets('192.168.000.001')).to.deep.equal([192, 168, 0, 1])
+        expect(Bip.toOctets('192.168.0000.01')).to.deep.equal([192, 168, 0, 1])
+    })
+
+    it('Should accept decimal', () => {
+        expect(Bip.toOctets(0)).to.deep.equal([0, 0, 0, 0])
+        expect(Bip.toOctets(65535)).to.deep.equal([0, 0, 255, 255])
+        expect(Bip.toOctets(2 ** 32 - 1)).to.deep.equal([255, 255, 255, 255])
+    })
+
+    it('Should accept octet array', () => {
+        expect(Bip.toOctets([0, 0, 0, 0])).to.deep.equal([0, 0, 0, 0])
+        expect(Bip.toOctets([0, 0, 255, 255])).to.deep.equal([0, 0, 255, 255])
+        expect(Bip.toOctets([255, 255, 255, 255])).to.deep.equal([255, 255, 255, 255])
+    })
+
+    it('Should return null for invalid input', () => {
+        expect(Bip.toOctets(-(2 ** 32))).to.be.null
+        expect(Bip.toOctets(2 ** 32)).to.be.null
+        expect(Bip.toOctets([10, 20, 30, 400])).to.be.null
+        expect(Bip.toOctets([10, 20, 30])).to.be.null
+        expect(Bip.toOctets([10, 20, 30, 40, 50])).to.be.null
+        expect(Bip.toOctets([10, 20, 30, null])).to.be.null
+        expect(Bip.toOctets([10, 20, 30, undefined])).to.be.null
+        expect(Bip.toOctets('10.20.30.400')).to.be.null
+        expect(Bip.toOctets('10.20.30.')).to.be.null
+        expect(Bip.toOctets('10.20.30.40.50')).to.be.null
+        expect(Bip.toOctets('10-20-30-40-50')).to.be.null
+    })
+
+    it('Should throw for invalid input with { throw: true } option', () => {
+        expect(() => Bip.toOctets(-(2 ** 32), { throw: true })).to.throw()
+        expect(() => Bip.toOctets(2 ** 32, { throw: true })).to.throw()
+        expect(() => Bip.toOctets([10, 20, 30, 500], { throw: true })).to.throw()
+        expect(() => Bip.toOctets([10, 20, 30], { throw: true })).to.throw()
+        expect(() => Bip.toOctets([10, 20, 30, 40, 50], { throw: true })).to.throw()
+        expect(() => Bip.toOctets([10, 20, 30, null], { throw: true })).to.throw()
+        expect(() => Bip.toOctets([10, 20, 30, undefined], { throw: true })).to.throw()
+        expect(() => Bip.toOctets('10.20.30.400', { throw: true })).to.throw()
+        expect(() => Bip.toOctets('10.20.30.', { throw: true })).to.throw()
+        expect(() => Bip.toOctets('10.20.30.40.50', { throw: true })).to.throw()
+        expect(() => Bip.toOctets('10-20-30-40-50', { throw: true })).to.throw()
+    })
+})
+
 describe('Bip.isIPv4()', () => {
     it('Should return a boolean', () => {
         expect(Bip.isNetmask('255.255.0.0')).to.be.a('boolean')

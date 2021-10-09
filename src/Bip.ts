@@ -1,74 +1,175 @@
 import { AddressRepresentation } from './Types'
-import { IPV4, NETMASK } from './Utils'
+import { IPV4, IPV4_DECIMAL_MAX, NETMASK } from './Utils'
 
 class BipImpl {
+    /**
+     * Checks if the provided address is a valid IPv4 address.
+     * @param netmask The IPv4 address to be validated
+     * @returns True if the IPv4 is valid and false if not
+     */
     isIPv4(address: string): boolean {
         return IPV4.test(address)
     }
 
+    /**
+     * Checks if the provided netmask is valid
+     * @param netmask The netmasks to be validated
+     * @returns True if the netmask is valid and false if not
+     */
     isNetmask(netmask: string): boolean {
         return NETMASK.test(netmask)
     }
 
+    /**
+     * Gets all possible netmaks. This also includes netmasks for are not allowed for subnettting.
+     * @returns All valid netmasks
+     */
     netmasks(): string[] {
         const netmasks: string[] = []
         for (let b = 32; b >= 0; b--) {
-            netmasks.push(this.toString(this.toBytes(2 ** 32 - (2 ** b))))
+            const maskString = this.toString(2 ** 32 - (2 ** b))
+            if (maskString == null) {
+                throw new Error('Conversion error: Could not convert netmask to a string')
+            }
+
+            netmasks.push(maskString)
         }
         return netmasks
     }
 
-    networkId(address: AddressRepresentation, netmask: AddressRepresentation): string {
-        const addressDec = this.toDecimal(address)
-        const netmaskDec = this.toDecimal(netmask)
+    /**
+     * Gets the broadcast address for a specified IPv4 address.
+     * @param address The IPv4 address to get the broadcast from
+     * @param netmask The netmask in which the address is loacted in
+     * @param opts Options used for getting the broadcast address
+     * @returns The broadcast address for the specified address in the subnet
+     */
+    networkId(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
+        const addressDec = this.toDecimal(address, opts)
+        const netmaskDec = this.toDecimal(netmask, opts)
+        if (addressDec == null || netmaskDec == null) return null
 
-        return this.toString(addressDec & netmaskDec)
+        return this.toString(addressDec & netmaskDec, opts)
     }
 
-    broadcast(address: AddressRepresentation, netmask: AddressRepresentation): string {
-        const addressDec = this.toDecimal(address)
-        const netmaskDec = this.toDecimal(netmask)
+    /**
+     * Gets the broadcast address for a specified IPv4 address.
+     * @param address The IPv4 address to get the broadcast from
+     * @param netmask The netmask in which the address is loacted in
+     * @param opts Options used for getting the broadcast address
+     * @returns The broadcast address for the specified address in the subnet
+     */
+    broadcast(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
+        const addressDec = this.toDecimal(address, opts)
+        const netmaskDec = this.toDecimal(netmask, opts)
+        if (addressDec == null || netmaskDec == null) return null
 
-        return this.toString(addressDec | ~netmaskDec)
+        return this.toString(addressDec | ~netmaskDec, opts)
     }
 
-    hostId(address: AddressRepresentation, netmask: AddressRepresentation): string {
-        const addressDec = this.toDecimal(address)
-        const netmaskDec = this.toDecimal(netmask)
+    /**
+     * Gets the host identifier for a specified IPv4 address.
+     * @param address The IPv4 address to get the host identifier from
+     * @param netmask The netmask in which the address is loacted in
+     * @param opts Options used for getting the host identifier
+     * @returns The host identifier for the specified address
+     */
+    hostId(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
+        const addressDec = this.toDecimal(address, opts)
+        const netmaskDec = this.toDecimal(netmask, opts)
+        if (addressDec == null || netmaskDec == null) return null
 
-        return this.toString(addressDec & ~netmaskDec)
+        return this.toString(addressDec & ~netmaskDec, opts)
     }
 
-    private toBytes(value: number): number[] {
-        return [
-            (value >> 24) & 0xFF,
-            (value >> 16) & 0xFF,
-            (value >> 8) & 0xFF,
-            value & 0xFF
-        ]
-    }
-
-    private toDecimal(value: AddressRepresentation): number {
+    /**
+     * Converts an address to its decimal representation.
+     * @param value The address to be converted
+     * @param opts Options used for the conversion
+     * @returns The provided address as an unsigned integer
+     */
+    toDecimal(value: AddressRepresentation, opts?: BaseOpts): number | null {
         if (typeof value == 'number') {
-            return value
+
+            if (value <= - (2 ** 32) || value > IPV4_DECIMAL_MAX) {
+                return throwOrNull(opts, 'Validation failed. Decimal value must be within 0 and 2^32')
+            }
+
+            return value >>> 0
         }
 
         const valueBytes = typeof value == 'string'
-            ? value.split('.').map(x => Number(x))
+            ? value.split('.').map(x => x == null || x.length == 0 ? null : Number(x))
             : value
 
-        return (valueBytes[0] & 0xFF) << 24
-            | (valueBytes[1] & 0xFF) << 16
-            | (valueBytes[2] & 0xFF) << 8
-            | (valueBytes[3] & 0xFF)
+        if (valueBytes.length != 4) {
+            return throwOrNull(opts, 'Validation failed. Addess must contain 4 octets')
+        }
+
+        let decValue = 0
+        for (let index = 0; index < valueBytes.length; index++) {
+            const octet = valueBytes[index]
+
+            if (octet == null || isNaN(octet)) {
+                return throwOrNull(opts, `Validation failed. Octet ${index} is not an integer`)
+            }
+
+            if (octet < 0 || octet > 255) {
+                return throwOrNull(opts, `Validation failed. Invalid value in octet ${index}: ${octet}`)
+            }
+
+            decValue <<= 8
+            decValue |= octet & 0xFF
+        }
+
+        return decValue >>> 0
     }
 
-    private toString(address: number | number[]): string {
-        if (typeof address == 'number')
-            return this.toString(this.toBytes(address))
+    /**
+     * Converts an address into dot decimal notation.
+     * If a string is passed it will be sanitized.
+     * @param address The address to be converted
+     * @returns The address as dot decimal notation
+     */
+    toString(address: AddressRepresentation, opts?: BaseOpts): string | null {
+        const addressOctets = this.toOctets(address, opts)
+        if (addressOctets == null) return null
 
-        return address.join('.')
+        return addressOctets.join('.')
+    }
+
+    /**
+     * Converts an address into an octet array.
+     * @param address The address to be converted
+     * @returns The address as an octet array
+     */
+    toOctets(address: AddressRepresentation, opts?: BaseOpts): number[] | null {
+        const addressDec = this.toDecimal(address, opts)
+        if (addressDec == null) return null
+
+        return [
+            (addressDec >> 24) & 0xFF,
+            (addressDec >> 16) & 0xFF,
+            (addressDec >> 8) & 0xFF,
+            addressDec & 0xFF
+        ]
     }
 }
 
+interface BaseOpts {
+    throw: boolean
+}
+
+const throwOrNull = (opts?: BaseOpts, message?: string): null => {
+    if (opts?.throw) {
+        throw new Error(message)
+    }
+
+    return null
+}
+
 export const Bip: BipImpl = new BipImpl()
+
+//////////////////////////////////////////////////
+//////////        Implementation        //////////
+//////////////////////////////////////////////////
