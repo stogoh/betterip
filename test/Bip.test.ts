@@ -255,6 +255,41 @@ describe('Bip.isNetmask()', () => {
 
 })
 
+describe('Bip.isCidr()', () => {
+    it('Should returnn a boolean', () => {
+        expect(Bip.isCidr('192.168.0.123/24')).to.be.a('boolean')
+    })
+
+    it('Should pass for valid notation', () => {
+        const shouldPass = [
+            '192.168.0.1/24',
+            '172.20.10.250/22',
+            '10.20.30.0/12',
+            '0.0.0.0/0',
+            '255.255.255.255/32'
+        ]
+        shouldPass.forEach(x => {
+            expect(Bip.isCidr(x), `expected ${x} to be valid`).to.be.true
+        })
+    })
+
+    it('Should fail for invalid notation', () => {
+        const shouldFail = [
+            '1.2.3.256',
+            '-1.2.3.4/-1',
+            '+5.6.7.8/33',
+            'one.two.three.four',
+            'one.two.three.four/24',
+            '192_168_1_1',
+            '0xc0a800fa',
+            '0.0/0.0/32'
+        ]
+        shouldFail.forEach(x => {
+            expect(Bip.isCidr(x), `expected ${x} to be invalid`).to.be.false
+        })
+    })
+})
+
 describe('Bip.netmasks()', () => {
     it('Should return an array', () => {
         expect(Bip.netmasks()).to.be.an('array')

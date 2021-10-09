@@ -20,9 +20,11 @@ console.log(Bip.isIPv4('192.168.1.1')) // true
 console.log(Bip.isIPv4('some.invalid.ip.address')) // false
 console.log(Bip.isNetmask('255.255.255.0')) // true
 console.log(Bip.isNetmask('some.invalid.net.mask')) // false
+console.log(Bip.isCidr('192.168.1.1/24')) // true
+console.log(Bip.isCidr('192.168.1.1/255.255.255.0')) // false
 
 // Tools
-console.log(Bip.networkId('192.168.1.123')) // '192.168.1.0'
+console.log(Bip.networkId('192.168.1.123', '255.255.255.0')) // '192.168.1.0'
 console.log(Bip.broadcast('192.168.1.123', '255.255.255.0')) // '192.168.1.255'
 console.log(Bip.hostId('192.168.1.123', '255.255.255.0')) // '0.0.0.123'
 console.log(Bip.netmasks()) // [ '128.0.0.0', '192.0.0.0', '224.0.0.0', ... ]

@@ -1,3 +1,4 @@
+import { BaseOpts, throwOrNull } from './Options'
 import { AddressRepresentation } from './Types'
 import { IPV4, IPV4_DECIMAL_MAX, NETMASK } from './Utils'
 
@@ -18,6 +19,24 @@ class BipImpl {
      */
     isNetmask(netmask: string): boolean {
         return NETMASK.test(netmask)
+    }
+
+    /**
+     * Checks if the given string is in CIDR notation
+     * @param cidr The CIDR notation to be validated
+     * @returns True if the passed string is in CIDR notation and false if not
+     */
+    isCidr(cidr: string): boolean | null {
+        const cidrParts = cidr.split('/')
+        if (cidrParts.length != 2) return false
+
+        const address = cidrParts[0]
+        const bits = Number(cidrParts[1])
+
+        if (!this.isIPv4(address)) return false
+        if (isNaN(bits) || bits < 0 || bits > 32) return false
+
+        return true
     }
 
     /**
@@ -89,6 +108,8 @@ class BipImpl {
      * @returns The provided address as an unsigned integer
      */
     toDecimal(value: AddressRepresentation, opts?: BaseOpts): number | null {
+        if (value == null || value == undefined) return null
+
         if (typeof value == 'number') {
 
             if (value <= - (2 ** 32) || value > IPV4_DECIMAL_MAX) {
@@ -156,20 +177,4 @@ class BipImpl {
     }
 }
 
-interface BaseOpts {
-    throw: boolean
-}
-
-const throwOrNull = (opts?: BaseOpts, message?: string): null => {
-    if (opts?.throw) {
-        throw new Error(message)
-    }
-
-    return null
-}
-
 export const Bip: BipImpl = new BipImpl()
-
-//////////////////////////////////////////////////
-//////////        Implementation        //////////
-//////////////////////////////////////////////////
