@@ -47,9 +47,7 @@ class BipImpl {
         const netmasks: string[] = []
         for (let b = 32; b >= 0; b--) {
             const maskString = this.toString(2 ** 32 - (2 ** b))
-            if (maskString == null) {
-                throw new Error('Conversion error: Could not convert netmask to a string')
-            }
+            if (maskString == null) return []
 
             netmasks.push(maskString)
         }
@@ -99,6 +97,22 @@ class BipImpl {
         if (addressDec == null || netmaskDec == null) return null
 
         return this.toString(addressDec & ~netmaskDec, opts)
+    }
+
+    range(first: AddressRepresentation, last: AddressRepresentation): string[] {
+        const firstDec = this.toDecimal(first)
+        const lastDec = this.toDecimal(last)
+        if (firstDec == null || lastDec == null) return []
+
+        const addresses: string[] = []
+
+        for (let i = firstDec; i <= lastDec; i++) {
+            const address = this.toString(i)
+            if (address == null) return []
+            addresses.push(address)
+        }
+
+        return addresses
     }
 
     /**

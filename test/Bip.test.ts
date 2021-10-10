@@ -208,6 +208,126 @@ describe('Bip.toOctets()', () => {
     })
 })
 
+describe('Bip.range()', () => {
+    it('Should return a string array', () => {
+        expect(Array.isArray(Bip.range('192.168.1.0', '192.168.1.255'))).to.be.true
+        expect(Array.isArray(Bip.range([192, 168, 1, 0], [192, 168, 1, 255]))).to.be.true
+        expect(Array.isArray(Bip.range(3232235776, 3232236031))).to.be.true
+    })
+
+    it('Should return the correct address range with strings', () => {
+        expect(Bip.range('192.168.1.0', '192.168.1.3')).to.deep.equal([
+            '192.168.1.0',
+            '192.168.1.1',
+            '192.168.1.2',
+            '192.168.1.3'
+        ])
+        expect(Bip.range('192.168.1.254', '192.168.2.2')).to.deep.equal([
+            '192.168.1.254',
+            '192.168.1.255',
+            '192.168.2.0',
+            '192.168.2.1',
+            '192.168.2.2'
+        ])
+        expect(Bip.range('255.255.255.250', '255.255.255.255')).to.deep.equal([
+            '255.255.255.250',
+            '255.255.255.251',
+            '255.255.255.252',
+            '255.255.255.253',
+            '255.255.255.254',
+            '255.255.255.255'
+        ])
+    })
+
+    it('Should return the correct address range with octet arrays', () => {
+        expect(Bip.range([192, 168, 1, 0], [192, 168, 1, 3])).to.deep.equal([
+            '192.168.1.0',
+            '192.168.1.1',
+            '192.168.1.2',
+            '192.168.1.3'
+        ])
+        expect(Bip.range([192, 168, 1, 254], [192, 168, 2, 2])).to.deep.equal([
+            '192.168.1.254',
+            '192.168.1.255',
+            '192.168.2.0',
+            '192.168.2.1',
+            '192.168.2.2'
+        ])
+        expect(Bip.range([255, 255, 255, 250], [255, 255, 255, 255])).to.deep.equal([
+            '255.255.255.250',
+            '255.255.255.251',
+            '255.255.255.252',
+            '255.255.255.253',
+            '255.255.255.254',
+            '255.255.255.255'
+        ])
+    })
+
+    it('Should return the correct address range with decimals', () => {
+        expect(Bip.range(3232235776, 3232235779)).to.deep.equal([
+            '192.168.1.0',
+            '192.168.1.1',
+            '192.168.1.2',
+            '192.168.1.3'
+        ])
+        expect(Bip.range(3232236030, 3232236034)).to.deep.equal([
+            '192.168.1.254',
+            '192.168.1.255',
+            '192.168.2.0',
+            '192.168.2.1',
+            '192.168.2.2'
+        ])
+        expect(Bip.range(4294967290, 4294967295)).to.deep.equal([
+            '255.255.255.250',
+            '255.255.255.251',
+            '255.255.255.252',
+            '255.255.255.253',
+            '255.255.255.254',
+            '255.255.255.255'
+        ])
+    })
+
+    it('Should return the correct address range with mixed arguments', () => {
+        expect(Bip.range('192.168.1.0', 3232235779)).to.deep.equal([
+            '192.168.1.0',
+            '192.168.1.1',
+            '192.168.1.2',
+            '192.168.1.3'
+        ])
+        expect(Bip.range(3232236030, [192, 168, 2, 2])).to.deep.equal([
+            '192.168.1.254',
+            '192.168.1.255',
+            '192.168.2.0',
+            '192.168.2.1',
+            '192.168.2.2'
+        ])
+        expect(Bip.range([255, 255, 255, 250], '255.255.255.255')).to.deep.equal([
+            '255.255.255.250',
+            '255.255.255.251',
+            '255.255.255.252',
+            '255.255.255.253',
+            '255.255.255.254',
+            '255.255.255.255'
+        ])
+    })
+
+    it('Should return an array with the correct length', () => {
+        expect(Bip.range('192.168.0.0', '192.168.0.255')).to.have.lengthOf(256)
+        expect(Bip.range('192.168.0.0', '192.168.1.255')).to.have.lengthOf(512)
+        expect(Bip.range('172.20.0.0', '172.20.7.255')).to.have.lengthOf(2048)
+        expect(Bip.range('0.0.0.0', '0.0.2.127')).to.have.lengthOf(640)
+    })
+
+    it('Should return an empty array for an invalid configuration', () => {
+        expect(Bip.range('192.168.0.255', '192.168.0.0')).to.deep.equal([])
+        expect(Bip.range('192.168.1.0', '192.168.0.0')).to.deep.equal([])
+        expect(Bip.range('an.invalid.ip.address', '192.168.0.255')).to.deep.equal([])
+        expect(Bip.range('192.168.0.0', 'an.invalid.ip.address')).to.deep.equal([])
+        expect(Bip.range([0, 0, 0], '192.168.0.255')).to.deep.equal([])
+        expect(Bip.range('192.168.0.0', [192, 168, 0, 255, 255])).to.deep.equal([])
+    })
+})
+
 describe('Bip.isIPv4()', () => {
     it('Should return a boolean', () => {
         expect(Bip.isNetmask('255.255.0.0')).to.be.a('boolean')
