@@ -1,4 +1,4 @@
-name: Linux Build
+name: Codecov
 
 on:
     push:
@@ -7,9 +7,8 @@ on:
         branches: [master]
 
 jobs:
-    build:
+    run:
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout
             - uses: actions/checkout@v2
@@ -20,5 +19,5 @@ jobs:
             - name: Clean Install
               run: npm ci
 
-            - name: Test
-              run: npm test
+            - name: Upload Coverage Report
+              uses: codecov/codecov-action@v2
