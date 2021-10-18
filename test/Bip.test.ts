@@ -314,7 +314,6 @@ describe('Bip.range()', () => {
     it('Should return an array with the correct length', () => {
         expect(Bip.range('192.168.0.0', '192.168.0.255')).to.have.lengthOf(256)
         expect(Bip.range('192.168.0.0', '192.168.1.255')).to.have.lengthOf(512)
-        expect(Bip.range('172.20.0.0', '172.20.7.255')).to.have.lengthOf(2048)
         expect(Bip.range('0.0.0.0', '0.0.2.127')).to.have.lengthOf(640)
     })
 
@@ -325,6 +324,12 @@ describe('Bip.range()', () => {
         expect(Bip.range('192.168.0.0', 'an.invalid.ip.address')).to.deep.equal([])
         expect(Bip.range([0, 0, 0], '192.168.0.255')).to.deep.equal([])
         expect(Bip.range('192.168.0.0', [192, 168, 0, 255, 255])).to.deep.equal([])
+    })
+})
+
+describe('Bip.contains()', () => {
+    it('Should return a boolean', () => {
+        expect(Bip.contains('192.168.0.0', '255.255.255.0', '192.168.0.123')).to.be.a('boolean')
     })
 })
 
@@ -402,11 +407,65 @@ describe('Bip.isCidr()', () => {
             'one.two.three.four/24',
             '192_168_1_1',
             '0xc0a800fa',
-            '0.0/0.0/32'
+            '0.0/0.0/32',
+            '0.0.0.0/-1',
+            '0.0.0.0/33',
+            'address/bits'
         ]
         shouldFail.forEach(x => {
             expect(Bip.isCidr(x), `expected ${x} to be invalid`).to.be.false
         })
+    })
+})
+
+describe('Bip.netmaskFromBits()', () => {
+    it('Should return a string', () => {
+        expect(Bip.netmaskFromBits(0)).to.be.a('string')
+        expect(Bip.netmaskFromBits(8)).to.be.a('string')
+        expect(Bip.netmaskFromBits(16)).to.be.a('string')
+        expect(Bip.netmaskFromBits(24)).to.be.a('string')
+        expect(Bip.netmaskFromBits(32)).to.be.a('string')
+    })
+
+    it('Should return the correct netmask', () => {
+        expect(Bip.netmaskFromBits(0)).to.equal('0.0.0.0')
+        expect(Bip.netmaskFromBits(1)).to.equal('128.0.0.0')
+        expect(Bip.netmaskFromBits(2)).to.equal('192.0.0.0')
+        expect(Bip.netmaskFromBits(3)).to.equal('224.0.0.0')
+        expect(Bip.netmaskFromBits(4)).to.equal('240.0.0.0')
+        expect(Bip.netmaskFromBits(5)).to.equal('248.0.0.0')
+        expect(Bip.netmaskFromBits(6)).to.equal('252.0.0.0')
+        expect(Bip.netmaskFromBits(7)).to.equal('254.0.0.0')
+        expect(Bip.netmaskFromBits(8)).to.equal('255.0.0.0')
+        expect(Bip.netmaskFromBits(9)).to.equal('255.128.0.0')
+        expect(Bip.netmaskFromBits(10)).to.equal('255.192.0.0')
+        expect(Bip.netmaskFromBits(11)).to.equal('255.224.0.0')
+        expect(Bip.netmaskFromBits(12)).to.equal('255.240.0.0')
+        expect(Bip.netmaskFromBits(13)).to.equal('255.248.0.0')
+        expect(Bip.netmaskFromBits(14)).to.equal('255.252.0.0')
+        expect(Bip.netmaskFromBits(15)).to.equal('255.254.0.0')
+        expect(Bip.netmaskFromBits(16)).to.equal('255.255.0.0')
+        expect(Bip.netmaskFromBits(17)).to.equal('255.255.128.0')
+        expect(Bip.netmaskFromBits(18)).to.equal('255.255.192.0')
+        expect(Bip.netmaskFromBits(19)).to.equal('255.255.224.0')
+        expect(Bip.netmaskFromBits(20)).to.equal('255.255.240.0')
+        expect(Bip.netmaskFromBits(21)).to.equal('255.255.248.0')
+        expect(Bip.netmaskFromBits(22)).to.equal('255.255.252.0')
+        expect(Bip.netmaskFromBits(23)).to.equal('255.255.254.0')
+        expect(Bip.netmaskFromBits(24)).to.equal('255.255.255.0')
+        expect(Bip.netmaskFromBits(25)).to.equal('255.255.255.128')
+        expect(Bip.netmaskFromBits(26)).to.equal('255.255.255.192')
+        expect(Bip.netmaskFromBits(27)).to.equal('255.255.255.224')
+        expect(Bip.netmaskFromBits(28)).to.equal('255.255.255.240')
+        expect(Bip.netmaskFromBits(29)).to.equal('255.255.255.248')
+        expect(Bip.netmaskFromBits(30)).to.equal('255.255.255.252')
+        expect(Bip.netmaskFromBits(31)).to.equal('255.255.255.254')
+        expect(Bip.netmaskFromBits(32)).to.equal('255.255.255.255')
+    })
+
+    it('Should return null for an invalid bit count', () => {
+        expect(Bip.netmaskFromBits(-1)).to.equal(null)
+        expect(Bip.netmaskFromBits(33)).to.equal(null)
     })
 })
 
@@ -456,7 +515,7 @@ describe('Bip.networkId()', () => {
     })
 })
 
-describe('Big.broadcast()', () => {
+describe('Bip.broadcast()', () => {
     it('Should return a string', () => {
         expect(Bip.networkId('192.168.1.123', '255.255.255.0')).to.be.a('string')
     })
@@ -470,7 +529,7 @@ describe('Big.broadcast()', () => {
     })
 })
 
-describe('Big.hostId()', () => {
+describe('Bip.hostId()', () => {
     it('Should return a string', () => {
         expect(Bip.networkId('192.168.1.123', '255.255.255.0')).to.be.a('string')
     })

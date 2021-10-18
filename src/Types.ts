@@ -72,5 +72,7 @@ export type AddressSpace =
     'public'
     | 'private'
     | 'link-local'
+    | 'loopback'
+    | 'shared'
 
 export type AddressRepresentation = string | number | number[]

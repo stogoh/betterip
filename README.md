@@ -27,8 +27,10 @@ console.log(Bip.isCidr('192.168.1.1/255.255.255.0')) // false
 console.log(Bip.networkId('192.168.1.123', '255.255.255.0')) // '192.168.1.0'
 console.log(Bip.broadcast('192.168.1.123', '255.255.255.0')) // '192.168.1.255'
 console.log(Bip.hostId('192.168.1.123', '255.255.255.0')) // '0.0.0.123'
+console.log(Bip.netmaskFromBits(24)) // '255.255.255.0'
 console.log(Bip.range('192.168.1.0', '192.168.1.2')) // [ '192.168.1.0', '192.168.1.1', '192.168.1.2' ]
-console.log(Bip.netmasks()) // [ '128.0.0.0', '192.0.0.0', '224.0.0.0', ... ]
+console.log(Bip.contains('192.168.1.0', '255.255.255.0', '192.168.1.123')) // true
+console.log(Bip.netmasks()) // [ '0.0.0.0', '128.0.0.0', '192.0.0.0', ... ]
 
 // Conversion
 console.log(Bip.toDecimal('192.168.1.123')) // 3232235899

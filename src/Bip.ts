@@ -1,6 +1,7 @@
+import { IPv4 } from './IPv4'
 import { BaseOpts, throwOrNull } from './Options'
 import { AddressRepresentation } from './Types'
-import { IPV4, IPV4_DECIMAL_MAX, NETMASK } from './Utils'
+import { IPV4, IPV4_DECIMAL_MAX, NETMASK, NETMASKS } from './Utils'
 
 class BipImpl {
     /**
@@ -44,14 +45,16 @@ class BipImpl {
      * @returns All valid netmasks
      */
     netmasks(): string[] {
-        const netmasks: string[] = []
-        for (let b = 32; b >= 0; b--) {
-            const maskString = this.toString(2 ** 32 - (2 ** b))
-            if (maskString == null) return []
+        return NETMASKS.map(x => this.toString(x))
+    }
 
-            netmasks.push(maskString)
-        }
-        return netmasks
+    /**
+     * Converts the bit count into a dot decimal netmask.
+     * @param bits The amount of set bits in the netmask
+     * @returns The netmask in dot decimal notation
+     */
+    netmaskFromBits(bits: number): string | null {
+        return this.toString(IPv4.netmaskFromBits(bits))
     }
 
     /**
@@ -62,11 +65,11 @@ class BipImpl {
      * @returns The broadcast address for the specified address in the subnet
      */
     networkId(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
-        const addressDec = this.toDecimal(address, opts)
-        const netmaskDec = this.toDecimal(netmask, opts)
-        if (addressDec == null || netmaskDec == null) return null
+        const addressOct = this.toOctets(address, opts)
+        const netmaskOct = this.toOctets(netmask, opts)
+        const networkId = IPv4.networkId(addressOct, netmaskOct)
 
-        return this.toString(addressDec & netmaskDec, opts)
+        return this.toString(networkId, opts)
     }
 
     /**
@@ -77,11 +80,11 @@ class BipImpl {
      * @returns The broadcast address for the specified address in the subnet
      */
     broadcast(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
-        const addressDec = this.toDecimal(address, opts)
-        const netmaskDec = this.toDecimal(netmask, opts)
-        if (addressDec == null || netmaskDec == null) return null
+        const addressOct = this.toOctets(address, opts)
+        const netmaskOct = this.toOctets(netmask, opts)
+        const broadcast = IPv4.broadcast(addressOct, netmaskOct)
 
-        return this.toString(addressDec | ~netmaskDec, opts)
+        return this.toString(broadcast)
     }
 
     /**
@@ -92,27 +95,40 @@ class BipImpl {
      * @returns The host identifier for the specified address
      */
     hostId(address: AddressRepresentation, netmask: AddressRepresentation, opts?: BaseOpts): string | null {
-        const addressDec = this.toDecimal(address, opts)
-        const netmaskDec = this.toDecimal(netmask, opts)
-        if (addressDec == null || netmaskDec == null) return null
+        const addressOct = this.toOctets(address, opts)
+        const netmaskOct = this.toOctets(netmask, opts)
+        const hostId = IPv4.hostId(addressOct, netmaskOct)
 
-        return this.toString(addressDec & ~netmaskDec, opts)
+        return this.toString(hostId)
     }
 
+    /**
+     * Gets all addresses in a specified range.
+     * @param first The first address in the range
+     * @param last The last address in the range
+     * @returns All addresses in the specified IPv4 range
+     */
     range(first: AddressRepresentation, last: AddressRepresentation): string[] {
-        const firstDec = this.toDecimal(first)
-        const lastDec = this.toDecimal(last)
-        if (firstDec == null || lastDec == null) return []
+        const firstOct = this.toOctets(first)
+        const lastOct = this.toOctets(last)
+        const addresses = IPv4.range(firstOct, lastOct)
 
-        const addresses: string[] = []
+        return addresses.map(a => this.toString(a))
+    }
 
-        for (let i = firstDec; i <= lastDec; i++) {
-            const address = this.toString(i)
-            if (address == null) return []
-            addresses.push(address)
-        }
+    /**
+     * Checks wether the specified address is inside in the specified subnet
+     * @param subnet Any address in the subnet to test
+     * @param netmask The subnet mask used to test the address
+     * @param address The address to test
+     * @returns True if the address is located in the specified subnet
+     */
+    contains(subnet: AddressRepresentation, netmask: AddressRepresentation, address: AddressRepresentation): boolean | null {
+        const subnetOct = this.toOctets(subnet)
+        const netmaskOct = this.toOctets(netmask)
+        const addressOct = this.toOctets(address)
 
-        return addresses
+        return IPv4.contains(subnetOct, netmaskOct, addressOct)
     }
 
     /**
