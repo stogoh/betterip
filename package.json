@@ -25,7 +25,7 @@
         "validation"
     ],
     "author": "stogoh",
-    "license": "GPL-3.0",
+    "license": "MIT",
     "homepage": "https://github.com/stogoh/betterip",
     "repository": {
         "type": "git",
