@@ -16,6 +16,9 @@ jobs:
             - name: Setting up NodeJS
               uses: actions/setup-node@v1
 
+            - name: Setting up nyc
+              run: npm i -g nyc
+
             - name: Clean Install
               run: npm ci
 
