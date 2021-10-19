@@ -2,6 +2,10 @@
 
 Better IP address utilities for NodeJS written in TypeScript. Inspired by the popular [ip](https://github.com/indutny/node-ip) module.
 
+![GitHub Workflow Status (event)](https://img.shields.io/github/workflow/status/stogoh/betterip/Linux%20build?event=push&label=build)
+[![codecov](https://codecov.io/gh/stogoh/betterip/branch/dev/graph/badge.svg?token=PNULHMM2W9)](https://codecov.io/gh/stogoh/betterip)
+![License](https://img.shields.io/github/license/stogoh/betterip)
+
 ## Installation
 
 ```shell
