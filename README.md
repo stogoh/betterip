@@ -1,6 +1,6 @@
 # BetterIP
 
-Better IP address utilities for NodeJS written in TypeScript. Inspired by the populate [ip](https://github.com/indutny/node-ip) module.
+Better IP address utilities for NodeJS written in TypeScript. Inspired by the popular [ip](https://github.com/indutny/node-ip) module.
 
 ## Installation
 
