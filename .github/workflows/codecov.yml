@@ -22,8 +22,8 @@ jobs:
             - name: Clean Install
               run: npm ci
 
-            - name: Test
-              run: npm run test
+            - name: Coverage
+              run: npm run coverage
 
             - name: Generate Report
               run: nyc report --reporter=text-lcov > coverage.lcov
