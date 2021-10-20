@@ -196,3 +196,51 @@ describe('IPv4.contains()', () => {
         expect(IPv4.contains([10, 20, 30, 40], [255, 255, 255, 0], [10, 20, 30])).to.be.false
     })
 })
+
+describe('IPv4.next()', () => {
+    it('Should return an octet array', () => {
+        expect(IPv4.next([0, 0, 0, 0])).to.have.length(4)
+        IPv4.next([0, 0, 0, 0]).forEach(o => expect(o).to.be.a('number'))
+    })
+
+    it('Should return null for an invalid address', () => {
+        expect(IPv4.next([256, 256, 256, 256])).to.be.null
+        expect(IPv4.next([10, 20, 30])).to.be.null
+        expect(IPv4.next([10, 20, 30, 40, 50])).to.be.null
+        expect(IPv4.next(null)).to.be.null
+    })
+
+    it('Should retun null if the last valid IPv4 address is exceeded', () => {
+        expect(IPv4.next([255, 255, 255, 255])).to.be.null
+    })
+
+    it('Should return next next address', () => {
+        expect(IPv4.next([0, 0, 0, 0])).to.deep.equal([0, 0, 0, 1])
+        expect(IPv4.next([0, 0, 0, 255])).to.deep.equal([0, 0, 1, 0])
+        expect(IPv4.next([0, 255, 255, 255])).to.deep.equal([1, 0, 0, 0])
+    })
+})
+
+describe('IPv4.previous()', () => {
+    it('Should return an octet array', () => {
+        expect(IPv4.previous([255, 255, 255, 255])).to.have.length(4)
+        IPv4.previous([255, 255, 255, 255]).forEach(o => expect(o).to.be.a('number'))
+    })
+
+    it('Should return null for an invalid address', () => {
+        expect(IPv4.previous([256, 256, 256, 256])).to.be.null
+        expect(IPv4.previous([10, 20, 30])).to.be.null
+        expect(IPv4.previous([10, 20, 30, 40, 50])).to.be.null
+        expect(IPv4.previous(null)).to.be.null
+    })
+
+    it('Should retun null if the first valid IPv4 address is exceeded', () => {
+        expect(IPv4.previous([0, 0, 0, 0])).to.be.null
+    })
+
+    it('Should return next previous address', () => {
+        expect(IPv4.previous([255, 255, 255, 255])).to.deep.equal([255, 255, 255, 254])
+        expect(IPv4.previous([0, 0, 1, 0])).to.deep.equal([0, 0, 0, 255])
+        expect(IPv4.previous([1, 0, 0, 0])).to.deep.equal([0, 255, 255, 255])
+    })
+})

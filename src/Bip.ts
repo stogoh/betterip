@@ -131,6 +131,22 @@ class BipImpl {
         return IPv4.contains(subnetOct, netmaskOct, addressOct)
     }
 
+    next(address: AddressRepresentation): string | null {
+        const addressOct = this.toOctets(address)
+        const nextAddressOct = IPv4.next(addressOct)
+        if (nextAddressOct == null) return null
+
+        return this.toString(nextAddressOct)
+    }
+
+    previous(address: AddressRepresentation): string | null {
+        const addressOct = this.toOctets(address)
+        const nextAddressOct = IPv4.next(addressOct)
+        if (nextAddressOct == null) return null
+
+        return this.toString(nextAddressOct)
+    }
+
     /**
      * Converts an address to its decimal representation.
      * @param value The address to be converted

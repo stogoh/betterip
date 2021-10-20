@@ -1,6 +1,6 @@
 import { Bip } from './Bip'
 import { and, areEqual, not, or } from './OctetArray'
-import { NETMASKS } from './Utils'
+import { IPV4_DECIMAL_MAX, IPV4_DECIMAL_MIN, NETMASKS } from './Utils'
 
 class IPv4Impl {
     isIPv4(address: number[]): boolean {
@@ -77,6 +77,26 @@ class IPv4Impl {
         if (bits < 0 || bits > 32) return null
 
         return 2 ** 32 - 2 ** (32 - bits)
+    }
+
+    next(address: number[], netmask?: number[]): number[] | null {
+        if (!this.isIPv4(address)) return null
+
+        const addressDec = Bip.toDecimal(address)
+        const nextAddressDec = addressDec + 1
+        if (nextAddressDec > IPV4_DECIMAL_MAX) return null
+
+        return Bip.toOctets(nextAddressDec)
+    }
+
+    previous(address: number[], netmask?: number[]): number[] | null {
+        if (!this.isIPv4(address)) return null
+
+        const addressDec = Bip.toDecimal(address)
+        const prevAddressDec = addressDec - 1
+        if (prevAddressDec < IPV4_DECIMAL_MIN) return null
+
+        return Bip.toOctets(prevAddressDec)
     }
 }
 
