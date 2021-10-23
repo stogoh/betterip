@@ -34,6 +34,8 @@ console.log(Bip.hostId('192.168.1.123', '255.255.255.0')) // '0.0.0.123'
 console.log(Bip.netmaskFromBits(24)) // '255.255.255.0'
 console.log(Bip.range('192.168.1.0', '192.168.1.2')) // [ '192.168.1.0', '192.168.1.1', '192.168.1.2' ]
 console.log(Bip.contains('192.168.1.0', '255.255.255.0', '192.168.1.123')) // true
+console.log(Bip.next('192.168.1.123')) // '192.168.1.124'
+console.log(Bip.previous('192.168.1.123')) // '192.168.1.122'
 console.log(Bip.netmasks()) // [ '0.0.0.0', '128.0.0.0', '192.0.0.0', ... ]
 
 // Conversion

@@ -131,6 +131,12 @@ class BipImpl {
         return IPv4.contains(subnetOct, netmaskOct, addressOct)
     }
 
+    /**
+     * Calculates the next address in the IPv4 address space.
+     * @param address Start address
+     * @returns The next address in the IPv4 address space. Return null if the next address is
+     * outside of the valid IPv4 address space.
+     */
     next(address: AddressRepresentation): string | null {
         const addressOct = this.toOctets(address)
         const nextAddressOct = IPv4.next(addressOct)
@@ -139,9 +145,15 @@ class BipImpl {
         return this.toString(nextAddressOct)
     }
 
+    /**
+     * Calculates the previous address in the IPv4 address space.
+     * @param address Start address
+     * @returns The previous address in the IPv4 address space. Return null if the previous address is
+     * outside of the valid IPv4 address space.
+     */
     previous(address: AddressRepresentation): string | null {
         const addressOct = this.toOctets(address)
-        const nextAddressOct = IPv4.next(addressOct)
+        const nextAddressOct = IPv4.previous(addressOct)
         if (nextAddressOct == null) return null
 
         return this.toString(nextAddressOct)

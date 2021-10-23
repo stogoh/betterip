@@ -79,7 +79,7 @@ class IPv4Impl {
         return 2 ** 32 - 2 ** (32 - bits)
     }
 
-    next(address: number[], netmask?: number[]): number[] | null {
+    next(address: number[]): number[] | null {
         if (!this.isIPv4(address)) return null
 
         const addressDec = Bip.toDecimal(address)
@@ -89,7 +89,7 @@ class IPv4Impl {
         return Bip.toOctets(nextAddressDec)
     }
 
-    previous(address: number[], netmask?: number[]): number[] | null {
+    previous(address: number[]): number[] | null {
         if (!this.isIPv4(address)) return null
 
         const addressDec = Bip.toDecimal(address)

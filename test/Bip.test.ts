@@ -542,3 +542,51 @@ describe('Bip.hostId()', () => {
         expect(Bip.hostId('10.50.100.200', '255.255.0.0')).to.equal('0.0.100.200')
     })
 })
+
+describe('Bip.next()', () => {
+    it('Should return a string', () => {
+        expect(Bip.next('192.168.1.123')).to.be.a('string')
+    })
+
+    it('Should return null for addresses outside the valid address space', () => {
+        expect(Bip.next('255.255.255.255')).to.be.null
+    })
+
+    it('Should return null for invalid IPv4 addresses', () => {
+        expect(Bip.next('some.invalid.ip.address')).to.be.null
+        expect(Bip.next('256.256.256.256')).to.be.null
+        expect(Bip.next('1.2.3')).to.be.null
+        expect(Bip.next('1.2.3.4.5')).to.be.null
+    })
+
+    it('Should return the next address', () => {
+        expect(Bip.next('0.0.0.0')).to.equal('0.0.0.1')
+        expect(Bip.next('0.0.0.255')).to.equal('0.0.1.0')
+        expect(Bip.next('0.255.255.255')).to.equal('1.0.0.0')
+        expect(Bip.next('127.255.255.255')).to.equal('128.0.0.0')
+    })
+})
+
+describe('Bip.previous()', () => {
+    it('Should return a string', () => {
+        expect(Bip.previous('192.168.1.123')).to.be.a('string')
+    })
+
+    it('Should return null for addresses outside the valid address space', () => {
+        expect(Bip.previous('0.0.0.0')).to.be.null
+    })
+
+    it('Should return null for invalid IPv4 addresses', () => {
+        expect(Bip.previous('some.invalid.ip.address')).to.be.null
+        expect(Bip.previous('256.256.256.256')).to.be.null
+        expect(Bip.previous('1.2.3')).to.be.null
+        expect(Bip.previous('1.2.3.4.5')).to.be.null
+    })
+
+    it('Should return the previous address', () => {
+        expect(Bip.previous('255.255.255.255')).to.equal('255.255.255.254')
+        expect(Bip.previous('0.0.1.0')).to.equal('0.0.0.255')
+        expect(Bip.previous('1.0.0.0')).to.equal('0.255.255.255')
+        expect(Bip.previous('128.0.0.0')).to.equal('127.255.255.255')
+    })
+})
