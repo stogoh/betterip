@@ -190,10 +190,22 @@ describe('IPv4.contains()', () => {
         expect(IPv4.contains([10, 20, 30, 40], [255, 255, 255, 0], [10, 20, 30, 50])).to.be.a('boolean')
     })
 
-    it('Should return false for an invalid configuration', () => {
+    it('Should return false for invalid parameters', () => {
         expect(IPv4.contains([10, 20, 30, -1], [255, 255, 255, 0], [10, 20, 30, 50])).to.be.false
         expect(IPv4.contains([10, 20, 30, 40], [255, 255, 0, 255], [10, 20, 30, 50])).to.be.false
         expect(IPv4.contains([10, 20, 30, 40], [255, 255, 255, 0], [10, 20, 30])).to.be.false
+    })
+
+    it('Should return false for addresses outside the specified subnet', () => {
+        expect(IPv4.contains([10, 20, 30, 40], [255, 255, 255, 0], [10, 20, 31, 40])).to.be.false
+        expect(IPv4.contains([10, 20, 30, 0], [255, 255, 255, 252], [10, 20, 30, 255])).to.be.false
+        expect(IPv4.contains([10, 20, 30, 40], [255, 0, 0, 0], [11, 100, 100, 100])).to.be.false
+    })
+
+    it('Should return true for addresses inside the specified subnet', () => {
+        expect(IPv4.contains([192, 168, 0, 1], [255, 255, 255, 0], [192, 168, 0, 100])).to.be.true
+        expect(IPv4.contains([192, 168, 0, 1], [255, 255, 255, 248], [192, 168, 0, 3])).to.be.true
+        expect(IPv4.contains([192, 168, 0, 1], [255, 255, 128, 0], [192, 168, 62, 100])).to.be.true
     })
 })
 

@@ -6,6 +6,10 @@ describe('OctetArray.not()', () => {
         expect(not([255, 255, 0, 0])).to.have.lengthOf(4)
     })
 
+    it('Should reutn null if the array is invalid', () => {
+        expect(not(null)).to.be.null
+    })
+
     it('Should return the inverted octet array', () => {
         expect(not([0, 0, 0, 0])).to.deep.equal([255, 255, 255, 255])
         expect(not([255, 255, 0, 0])).to.deep.equal([0, 0, 255, 255])
@@ -17,6 +21,11 @@ describe('OctetArray.not()', () => {
 describe('OctetArray.and()', () => {
     it('Should return an octet array', () => {
         expect(and([255, 255, 0, 0], [255, 255, 0, 0])).to.have.lengthOf(4)
+    })
+
+    it('Should reutn null if on of the array is invalid', () => {
+        expect(and([1, 2, 3, 4], null)).to.be.null
+        expect(and(null, [1, 2, 3, 4])).to.be.null
     })
 
     it('Should return the correct octet array', () => {
@@ -31,6 +40,11 @@ describe('OctetArray.or()', () => {
         expect(or([255, 255, 0, 0], [255, 255, 0, 0])).to.have.lengthOf(4)
     })
 
+    it('Should reutn null if on of the array is invalid', () => {
+        expect(or([1, 2, 3, 4], null)).to.be.null
+        expect(or(null, [1, 2, 3, 4])).to.be.null
+    })
+
     it('Should return the correct octet array', () => {
         expect(or([0, 0, 0, 0], [0, 0, 0, 0])).to.deep.equal([0, 0, 0, 0])
         expect(or([255, 255, 0, 0], [255, 255, 0, 0])).to.deep.equal([255, 255, 0, 0])
@@ -41,6 +55,11 @@ describe('OctetArray.or()', () => {
 describe('OctetArray.xor()', () => {
     it('Should return an octet array', () => {
         expect(xor([255, 255, 0, 0], [255, 255, 0, 0])).to.have.lengthOf(4)
+    })
+
+    it('Should reutn null if on of the array is invalid', () => {
+        expect(xor([1, 2, 3, 4], null)).to.be.null
+        expect(xor(null, [1, 2, 3, 4])).to.be.null
     })
 
     it('Should return the correct octet array', () => {
@@ -56,11 +75,9 @@ describe('OctetArray.areEqual()', () => {
         expect(areEqual([255, 255, 0, 0], [0, 0, 255, 255])).to.be.a('boolean')
     })
 
-    it('Should return true if the arrays have the same value', () => {
-        expect(areEqual([0, 0, 0, 0], [0, 0, 0, 0])).to.be.true
-        expect(areEqual([255, 255, 0, 0], [255, 255, 0, 0])).to.be.true
-        expect(areEqual([0, 0, 255, 255], [0, 0, 255, 255])).to.be.true
-        expect(areEqual([255, 255, 255, 255], [255, 255, 255, 255])).to.be.true
+    it('Should reutn null if on of the array is invalid', () => {
+        expect(areEqual([1, 2, 3, 4], null)).to.be.null
+        expect(areEqual(null, [1, 2, 3, 4])).to.be.null
     })
 
     it('Should return false if the arrays have the not same value', () => {
@@ -72,5 +89,12 @@ describe('OctetArray.areEqual()', () => {
     it('Should return false if the arrays have different lengths', () => {
         expect(areEqual([0, 0, 0, 0], [0, 0, 0])).to.be.false
         expect(areEqual([255, 255, 255], [255, 255, 255, 255])).to.be.false
+    })
+
+    it('Should return true if the arrays have the same value', () => {
+        expect(areEqual([0, 0, 0, 0], [0, 0, 0, 0])).to.be.true
+        expect(areEqual([255, 255, 0, 0], [255, 255, 0, 0])).to.be.true
+        expect(areEqual([0, 0, 255, 255], [0, 0, 255, 255])).to.be.true
+        expect(areEqual([255, 255, 255, 255], [255, 255, 255, 255])).to.be.true
     })
 })

@@ -331,6 +331,25 @@ describe('Bip.contains()', () => {
     it('Should return a boolean', () => {
         expect(Bip.contains('192.168.0.0', '255.255.255.0', '192.168.0.123')).to.be.a('boolean')
     })
+
+    it('Should return false for an invalid parameters', () => {
+        expect(Bip.contains('192.168.1.1', '255.255.255.0', null)).to.be.false
+        expect(Bip.contains('192.168.1.1', null, '192.168.1.123')).to.be.false
+        expect(Bip.contains(null, '255.255.255.0', '192.168.1.123')).to.be.false
+        expect(Bip.contains('192.168.1.1', '255.0.0.255', '192.168.1.123')).to.be.false
+    })
+
+    it('Should return false for addresses outside the specified subnet', () => {
+        expect(Bip.contains('10.20.30.40', '255.255.255.0', '10.20.31.40')).to.be.false
+        expect(Bip.contains('10.20.30.0', '255.255.255.252', '10.20.31.255')).to.be.false
+        expect(Bip.contains('10.20.30.40', '255.0.0.0', '11.100.100.100')).to.be.false
+    })
+
+    it('Should return true for addresses inside the specified subnet', () => {
+        expect(Bip.contains('192.168.0.1', '255.255.255.0', '192.168.0.100')).to.be.true
+        expect(Bip.contains('192.168.0.1', '255.255.255.248', '192.168.0.3')).to.be.true
+        expect(Bip.contains('192.168.0.1', '255.255.128.0', '192.168.62.100')).to.be.true
+    })
 })
 
 describe('Bip.isIPv4()', () => {
